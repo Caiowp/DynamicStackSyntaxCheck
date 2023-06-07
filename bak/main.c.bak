@@ -1,0 +1,131 @@
+/* This program reads a source program and parses it to make sure all opening-closing parentheses are paired.
+ * Written by: Caio M. V. Silva
+ * Date: */
+#include <stdio.h>
+#include <stdlib.h>
+#include "stackADT.h"
+// Error Messages
+const char closParenMiss[] = "Close paren missing at line";
+const char openParenMiss[] = "Open paren missing at line";
+const char closBrackeMiss[] = "Close bracket missing at line";
+const char openBrackeMiss[] = "Open bracket missing at line";
+const char closBraceMiss[] = "Close braces missing at line";
+const char openBraceMiss[] = "Open braces missing at line";
+
+int main (void) {
+	// Local Definitions
+	STACK* stack;
+	char token;
+	char* dataPtr;
+	char fileID[25];
+	FILE* fpIn;
+	int lineCount = 1;
+	// Statements
+	// Create Stack
+	stack = createStack ();
+	printf ("Enter file ID for file to be parsed: ");
+	scanf ("%s", fileID);
+	fpIn = fopen (fileID, "r");
+	if (!fpIn)
+		printf("Error opening %s\n", fileID), exit(100);
+	// read characters from the source code and parse
+	while ((token = fgetc (fpIn)) != EOF ) {
+//		switch(token){
+//		case '\n':
+//			lineCount++;
+//			break;
+//		case '{':
+//			dataPtr = (char*) malloc (sizeof (char));
+//			*dataPtr = token;
+//			pushStack (stack, dataPtr);
+//			break;
+//		case '[':
+//			dataPtr = (char*) malloc (sizeof (char));
+//			*dataPtr = token;
+//			pushStack (stack, dataPtr);
+//			break;
+//		case '(':
+//			dataPtr = (char*) malloc (sizeof (char));
+//			*dataPtr = token;
+//			pushStack (stack, dataPtr);
+//			break;
+//		case ']':
+//			if (emptyStack (stack)) {
+//				printf ("%s %d\n", openMiss, lineCount);
+//				return 1;
+//			} // if true
+//			else popStack (stack);
+//			break;
+//		case ')':
+//			if (emptyStack (stack)) {
+//				printf ("%s %d\n", openMiss, lineCount);
+//				return 1;
+//			} // if true
+//			else popStack (stack);
+//			break;
+//		case '}':
+//			if (emptyStack (stack)) {
+//				printf ("%s %d\n", openMiss, lineCount);
+//				return 1;
+//			} // if true
+//			else popStack (stack);
+//			break;
+//		}
+
+		if (token == '\n') lineCount++;
+		if (token == '(' || token == '{' || token == '[' ) {
+			dataPtr = (char*) malloc (sizeof (char));
+			*dataPtr = token;
+			pushStack (stack, dataPtr);
+		} // if
+		else {
+			if (token == ')') {
+				if (emptyStack (stack)) {
+					printf ("%s %d\n", openParenMiss, lineCount);
+					return 1;
+				} // if true
+				else popStack (stack);
+			} // token ==
+			if (token == ']') {
+				if (emptyStack (stack)) {
+					printf ("%s %d\n", openBrackeMiss, lineCount);
+					return 1;
+				} // if true
+				else popStack (stack);
+			} // token ==
+			if (token == '}') {
+				if (emptyStack (stack)) {
+					printf ("%s %d\n", openBraceMiss, lineCount);
+					return 1;
+				} // if true
+				else popStack (stack);
+			} // token ==
+		} // else
+	} // while
+
+	char *c = (char*) popStack(stack);
+	if (!emptyStack (stack)) {
+		switch(*c){
+		case '[':
+			printf ("%s %d\n", closBrackeMiss, lineCount);
+			return 1;
+			break;
+		case '(':
+			printf ("%s %d\n", closParenMiss, lineCount);
+			return 1;
+			break;
+		case '{':
+			printf ("%s %d\n", closBraceMiss, lineCount);
+			return 1;
+			break;
+		}
+
+	} // if
+
+	// Now destroy the stack
+	destroyStack (stack);
+	printf ("Parsing is OK: %d Lines parsed.\n", lineCount);
+	return 0;
+} // main
+
+
